@@ -1,31 +1,20 @@
 package translate;
 
-import java.io.BufferedReader;
-import java.io.OutputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 public class Translator {
     private static final String CLIENT_ID = "FREE_TRIAL_ACCOUNT";
     private static final String CLIENT_SECRET = "PUBLIC_SECRET";
-    private static final String ENDPOINT = "http://api.whatsmate.net/v1/translation/translate";
+    private static final String TRANSLATE = "https://api.whatsmate.net/v1/translation/translate";
 
     public static String translate(String fromLang, String toLang, String text) throws Exception {
 
-        String jsonPayload = "{" +
-                "\"fromLang\":\"" +
-                fromLang +
-                "\"," +
-                "\"toLang\":\"" +
-                toLang +
-                "\"," +
-                "\"text\":\"" +
-                text +
-                "\"" +
-                "}";
+        String jsonPayload = String.format("{\"fromLang\":\"%s\",\"toLang\":\"%s\",\"text\":\"%s\"}", fromLang, toLang, text);
 
-        URL url = new URL(ENDPOINT);
+        URL url = new URL(TRANSLATE);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setDoOutput(true);
         conn.setRequestMethod("POST");
@@ -33,15 +22,18 @@ public class Translator {
         conn.setRequestProperty("X-WM-CLIENT-SECRET", CLIENT_SECRET);
         conn.setRequestProperty("Content-Type", "application/json");
 
-        OutputStream os = conn.getOutputStream();
-        os.write(jsonPayload.getBytes());
-        os.flush();
-        os.close();
+        OutputStreamWriter osw = new OutputStreamWriter(conn.getOutputStream(), StandardCharsets.UTF_8);
+        BufferedWriter bw = new BufferedWriter(osw);
+
+        bw.write(jsonPayload);
+        bw.close();
+
 
         int statusCode = conn.getResponseCode();
-        BufferedReader br = new BufferedReader(new InputStreamReader(
-                (statusCode == 200) ? conn.getInputStream() : conn.getErrorStream()
-        ));
+        if (statusCode != 200) throw new Exception();
+
+        InputStreamReader isr = new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8);
+        BufferedReader br = new BufferedReader(isr);
 
         StringBuilder sb = new StringBuilder();
         String output;
