@@ -4,11 +4,14 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Translator {
     private static final String CLIENT_ID = "FREE_TRIAL_ACCOUNT";
     private static final String CLIENT_SECRET = "PUBLIC_SECRET";
     private static final String TRANSLATE = "https://api.whatsmate.net/v1/translation/translate";
+    private static final String SUPPORTED_CODES = "https://api.whatsmate.net/v1/translation/supported-codes";
 
     public static String translate(String fromLang, String toLang, String text) throws Exception {
 
@@ -45,5 +48,24 @@ public class Translator {
         conn.disconnect();
 
         return sb.toString();
+    }
+
+    public static List<String> getLanguageList() throws Exception {
+        URL url = new URL(SUPPORTED_CODES);
+
+        InputStreamReader isr = new InputStreamReader(url.openStream());
+        BufferedReader br = new BufferedReader(isr);
+
+        List<String> list = new ArrayList<>();
+        String line;
+        while ((line = br.readLine()) != null) {
+            list.add(line);
+        }
+        br.close();
+
+        list.remove(0);
+        list.remove(list.size() - 1);
+
+        return list;
     }
 }
