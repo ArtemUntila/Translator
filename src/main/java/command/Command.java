@@ -26,7 +26,10 @@ public class Command {
                 String translatedText = Translator.translate(fromLang, toLang, text);
                 System.out.println(translatedText);
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                System.err.println(
+                    "Couldn't translate your text.\n" +
+                    "Use \"list\" command to see if your --from or --to language is supported and which code corresponds to it."
+                );
             }
         }
     }
@@ -40,7 +43,7 @@ public class Command {
                 List<String> languageList = Translator.getLanguageList();
                 languageList.forEach(System.out::println);
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                System.err.println("Couldn't get language list.");
             }
         }
     }
