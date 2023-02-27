@@ -3,9 +3,8 @@ package command;
 import picocli.CommandLine;
 
 public class CommandExecutor {
-
-    public static int execute(String[] args) {
-        Command command = new Command();
+    
+    public static int execute(Object command, String[] args) {
         CommandLine commandLine = new CommandLine(command);
         return commandLine.execute(args);
     }
