@@ -48,9 +48,8 @@ public class CommandTest {
 
         String translatorResult = Translator.getLanguageCodes();
         String commandResult = out.toString();
-        // Remove empty line in the end of String
-        commandResult = commandResult.substring(0, commandResult.length() - 2);
 
-        Assert.assertEquals(translatorResult, commandResult);
+        // Remove empty lines
+        Assert.assertEquals(translatorResult.trim(), commandResult.trim());
     }
 }
