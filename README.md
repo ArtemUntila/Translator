@@ -2,7 +2,7 @@
 
 ![Testing](https://github.com/Artyom-IWT/Translator/actions/workflows/maven.yml/badge.svg?branch=main)
 
-Simple service with a command-line interface for text translation.
+Simple REST client service with a command-line interface for text translation.
 
 ## Usage
 

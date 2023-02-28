@@ -3,8 +3,6 @@ package command;
 import picocli.CommandLine;
 import translate.Translator;
 
-import java.util.List;
-
 @CommandLine.Command(name = "translator", subcommands = {Command.TranslateCommand.class, Command.ListCommand.class})
 public class Command {
 
@@ -12,13 +10,37 @@ public class Command {
     static class TranslateCommand implements Runnable {
 
         @CommandLine.Option(names = {"-f", "--from"}, description = "From language", required = true)
-        String fromLang;
+        private String fromLang;
 
         @CommandLine.Option(names = {"-t", "--to"}, description = "To language", required = true)
-        String toLang;
+        private String toLang;
 
         @CommandLine.Parameters(description = "Text to translate")
-        String text;
+        private String text;
+
+        public String getFromLang() {
+            return fromLang;
+        }
+
+        public void setFromLang(String fromLang) {
+            this.fromLang = fromLang;
+        }
+
+        public String getToLang() {
+            return toLang;
+        }
+
+        public void setToLang(String toLang) {
+            this.toLang = toLang;
+        }
+
+        public String getText() {
+            return text;
+        }
+
+        public void setText(String text) {
+            this.text = text;
+        }
 
         @Override
         public void run() {
@@ -40,8 +62,8 @@ public class Command {
         @Override
         public void run() {
             try {
-                List<String> languageList = Translator.getLanguageList();
-                languageList.forEach(System.out::println);
+                String languageCodes = Translator.getLanguageCodes();
+                System.out.println(languageCodes);
             } catch (Exception e) {
                 System.err.println("Couldn't get language list.");
             }

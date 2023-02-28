@@ -6,14 +6,11 @@ import translate.Translator;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class CommandTest {
 
     @Test
-    public void testTranslateCommand() throws Exception {
+    public void testTranslateCommand() {
         String text = "Software Engineering 2022";
         String fromLang = "en";
         String toLang = "ru";
@@ -25,9 +22,10 @@ public class CommandTest {
 
         // Simulate command execution
         Command.TranslateCommand translateCommand = new Command.TranslateCommand();
-        translateCommand.fromLang = fromLang;
-        translateCommand.toLang = toLang;
-        translateCommand.text = text;
+        translateCommand.setFromLang(fromLang);
+        translateCommand.setToLang(toLang);
+        translateCommand.setText(text);
+
         translateCommand.run();
 
         String translatorResult = Translator.translate(fromLang, toLang, text);
@@ -38,7 +36,7 @@ public class CommandTest {
     }
 
     @Test
-    public void testListCommand() throws Exception {
+    public void testListCommand() {
         // Redirect System.out
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         PrintStream printStream = new PrintStream(out);
@@ -48,14 +46,10 @@ public class CommandTest {
         Command.ListCommand listCommand = new Command.ListCommand();
         listCommand.run();
 
-        List<String> translatorResult = Translator.getLanguageList();
-        List<String> commandResult = Arrays.asList(out.toString().split("\n"));
+        String translatorResult = Translator.getLanguageCodes();
+        String commandResult = out.toString();
 
-        // Trim elements
-        translatorResult = translatorResult.stream().map(String::trim).collect(Collectors.toList());
-        commandResult = commandResult.stream().map(String::trim).collect(Collectors.toList());
-
-        Assert.assertEquals(translatorResult, commandResult);
-        System.err.println(out);
+        // Remove empty lines
+        Assert.assertEquals(translatorResult.trim(), commandResult.trim());
     }
 }

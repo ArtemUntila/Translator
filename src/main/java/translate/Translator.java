@@ -1,71 +1,43 @@
 package translate;
 
-import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.*;
 
 public class Translator {
+
     private static final String CLIENT_ID = "FREE_TRIAL_ACCOUNT";
     private static final String CLIENT_SECRET = "PUBLIC_SECRET";
     private static final String TRANSLATE = "https://api.whatsmate.net/v1/translation/translate";
     private static final String SUPPORTED_CODES = "https://api.whatsmate.net/v1/translation/supported-codes";
 
-    public static String translate(String fromLang, String toLang, String text) throws Exception {
+    private static final RestTemplate restTemplate = new RestTemplate();
 
-        String jsonPayload = String.format("{\"fromLang\":\"%s\",\"toLang\":\"%s\",\"text\":\"%s\"}", fromLang, toLang, text);
+    public static String translate(String fromLang, String toLang, String text) {
+        // Actually, there is almost no difference between HttpHeaders and MultiValueMap<String, String>
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.add("X-WM-CLIENT-ID", CLIENT_ID);
+        headers.add("X-WM-CLIENT-SECRET", CLIENT_SECRET);
 
-        URL url = new URL(TRANSLATE);
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setDoOutput(true);
-        conn.setRequestMethod("POST");
-        conn.setRequestProperty("X-WM-CLIENT-ID", CLIENT_ID);
-        conn.setRequestProperty("X-WM-CLIENT-SECRET", CLIENT_SECRET);
-        conn.setRequestProperty("Content-Type", "application/json");
+        Map<String, String> jsonData = new HashMap<>();
+        jsonData.put("fromLang", fromLang);
+        jsonData.put("toLang", toLang);
+        jsonData.put("text", text);
 
-        OutputStreamWriter osw = new OutputStreamWriter(conn.getOutputStream(), StandardCharsets.UTF_8);
-        BufferedWriter bw = new BufferedWriter(osw);
+        HttpEntity<Map<String, String>> request = new HttpEntity<>(jsonData, headers);
 
-        bw.write(jsonPayload);
-        bw.close();
-
-
-        int statusCode = conn.getResponseCode();
-        if (statusCode != 200) throw new Exception();
-
-        InputStreamReader isr = new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8);
-        BufferedReader br = new BufferedReader(isr);
-
-        StringBuilder sb = new StringBuilder();
-        String output;
-        while ((output = br.readLine()) != null) {
-            sb.append(output);
-        }
-        br.close();
-
-        conn.disconnect();
-
-        return sb.toString();
+        return restTemplate.postForObject(TRANSLATE, request, String.class);
     }
 
-    public static List<String> getLanguageList() throws Exception {
-        URL url = new URL(SUPPORTED_CODES);
+    public static String getLanguageCodes() {
+        String languageCodes = restTemplate.getForObject(SUPPORTED_CODES, String.class);
+        Objects.requireNonNull(languageCodes);
 
-        InputStreamReader isr = new InputStreamReader(url.openStream());
-        BufferedReader br = new BufferedReader(isr);
-
-        List<String> list = new ArrayList<>();
-        String line;
-        while ((line = br.readLine()) != null) {
-            list.add(line);
-        }
-        br.close();
-
-        list.remove(0);
-        list.remove(list.size() - 1);
-
-        return list;
+        // Remove json brackets and empty lines
+        return languageCodes.replaceAll("(\\{\n)|(\n})", "");
     }
 }
